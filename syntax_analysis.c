@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 /* Global declarations */
 /* Variables */
 int charClass;
+int i = 0;
 char lexeme [100];
 char nextChar;
 int lexLen;
@@ -13,13 +15,17 @@ int token;
 int nextToken;
 FILE *file, *fopen();
 char * line = NULL;
-ssize_t len = 0;
-ssize_t read;
+size_t len = 0;
+size_t read;
+char *read_line;
+
 
 /* Function declarations */
 void addChar();
-void getChar();
+void getChar(char* x);
+void getLine();
 void getNonBlank();
+void validExpr();
 int lex();
 /* Character classes */
 #define LETTER 0
@@ -43,20 +49,36 @@ main() {
  if ((file = fopen("data.txt", "r")) == NULL)
   printf("ERROR - cannot open data.txt \n");
  else {
-   getChar();
+   getLine();
    do {
      //lex();
    } while (nextToken != EOF);
  }
 }
 
-void getChar() {
+/* getLine - a function to grab entire line before scanning individual chars */
+void getLine() {
   while((read = getline(&line, &len, file)) != -1){
-    printf("%s", line);
-  }
-
+      getChar(line);
+    }
   fclose(file);
   if(line)
     free(line);
   exit(EXIT_SUCCESS);
+}
+
+/*****************************************************/
+/* getChar - a function to get the next character of
+ input and determine its character class */
+void getChar(char* x) {
+  for(int i=0; x[i] != '\0'; i++){
+   if (isalpha(x[i]))
+    charClass = LETTER;
+   else if (isdigit(x[i]))
+    charClass = DIGIT;
+   else charClass = UNKNOWN;
+ }
+ if(x[i] == EOF){
+  charClass = EOF;
+}
 }
