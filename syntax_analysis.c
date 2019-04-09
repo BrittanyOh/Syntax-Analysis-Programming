@@ -22,11 +22,13 @@ char *read_line;
 
 /* Function declarations */
 void addChar();
-void getChar(char* x);
+void getCharArray(char* x);
+void getChar();
 void getLine();
-void getNonBlank();
+void getNonBlank(char* z);
 void validExpr();
-int lex();
+int lex(char* i);
+
 /* Character classes */
 #define LETTER 0
 #define DIGIT 1
@@ -50,16 +52,16 @@ main() {
   printf("ERROR - cannot open data.txt \n");
  else {
    getLine();
-   do {
-     //lex();
-   } while (nextToken != EOF);
  }
 }
 
 /* getLine - a function to grab entire line before scanning individual chars */
 void getLine() {
   while((read = getline(&line, &len, file)) != -1){
-      getChar(line);
+      getCharArray(line);
+      // do {
+      //   //lex(line);
+      // } while (nextToken != EOF);
     }
   fclose(file);
   if(line)
@@ -70,15 +72,84 @@ void getLine() {
 /*****************************************************/
 /* getChar - a function to get the next character of
  input and determine its character class */
-void getChar(char* x) {
+void getCharArray(char* x) {
   for(int i=0; x[i] != '\0'; i++){
-   if (isalpha(x[i]))
+    nextChar = x[i];
+    getChar();
+    // do {
+    //   lex();
+    // } while(nextToken != EOF);
+  }
+}
+
+
+void getChar() {
+  if(nextChar != EOF){
+   if (isalpha(nextChar))
     charClass = LETTER;
-   else if (isdigit(x[i]))
+   else if (isdigit(nextChar))
     charClass = DIGIT;
    else charClass = UNKNOWN;
- }
- if(x[i] == EOF){
+ }else{
   charClass = EOF;
+  }
+  printf("%c\n", nextChar);
 }
+
+
+/*****************************************************/
+/* getNonBlank - a function to call getChar until it
+ returns a non-whitespace character */
+void getNonBlank(char* z) {
+  for(int i=0; z[i] != '\0'; i++){
+   while (isspace(z[i]))
+    getChar(z[i]);
+  }
 }
+
+/*****************************************************/
+/* lex - a simple lexical analyzer for arithmetic
+ expressions */
+int lex(char* i) {
+ lexLen = 0;
+ getNonBlank(i);
+ switch (charClass) {
+  /* Parse identifiers */
+   case LETTER:
+     //addChar();
+     getChar(i);
+     while (charClass == LETTER || charClass == DIGIT) {
+       //addChar();
+       getChar(i);
+     }
+     nextToken = IDENT;
+     break;
+  /* Parse integer literals */
+   case DIGIT:
+     //addChar();
+     getChar(i);
+     while (charClass == DIGIT) {
+       //addChar();
+       getChar(i);
+     }
+     nextToken = INT_LIT;
+     break;
+  /* Parentheses and operators */
+   case UNKNOWN:
+     //lookup(y);
+     getChar(i);
+     break;
+
+  /* EOF */
+   case EOF:
+     nextToken = EOF;
+     lexeme[0] = 'E';
+     lexeme[1] = 'O';
+     lexeme[2] = 'F';
+     lexeme[3] = 0;
+     break;
+ } /* End of switch */
+ printf("Next token is: %d, Next lexeme is %s\n",
+ nextToken, lexeme);
+ return nextToken;
+} /* End of function lex */
