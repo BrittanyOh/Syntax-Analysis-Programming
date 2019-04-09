@@ -22,12 +22,12 @@ char *read_line;
 
 /* Function declarations */
 void addChar();
-void getCharArray(char* x);
+void getCharArray();
 void getChar();
 void getLine();
-void getNonBlank(char* z);
+void getNonBlank();
 void validExpr();
-int lex(char* i);
+int lex();
 
 /* Character classes */
 #define LETTER 0
@@ -58,10 +58,10 @@ main() {
 /* getLine - a function to grab entire line before scanning individual chars */
 void getLine() {
   while((read = getline(&line, &len, file)) != -1){
-      getCharArray(line);
-      // do {
-      //   //lex(line);
-      // } while (nextToken != EOF);
+      getChar();
+      do {
+        lex();
+     } while (nextToken != EOF);
     }
   fclose(file);
   if(line)
@@ -72,72 +72,69 @@ void getLine() {
 /*****************************************************/
 /* getChar - a function to get the next character of
  input and determine its character class */
-void getCharArray(char* x) {
-  for(int i=0; x[i] != '\0'; i++){
-    nextChar = x[i];
-    getChar();
-    // do {
-    //   lex();
-    // } while(nextToken != EOF);
-  }
-}
-
-
 void getChar() {
-  if(nextChar != EOF){
-   if (isalpha(nextChar))
-    charClass = LETTER;
-   else if (isdigit(nextChar))
-    charClass = DIGIT;
-   else charClass = UNKNOWN;
- }else{
+  if ((nextChar = line[i]) != '\0') {
+    if (isalpha(nextChar))
+      charClass = LETTER;
+    else if (isdigit(nextChar))
+      charClass = DIGIT;
+    else charClass = UNKNOWN;
+  }else{
   charClass = EOF;
   }
-  printf("%c\n", nextChar);
+  i++;
 }
 
 
 /*****************************************************/
 /* getNonBlank - a function to call getChar until it
  returns a non-whitespace character */
-void getNonBlank(char* z) {
-  for(int i=0; z[i] != '\0'; i++){
-   while (isspace(z[i]))
-    getChar(z[i]);
+void getNonBlank() {
+   while (isspace(nextChar))
+    getChar();
   }
-}
+
+  /*****************************************************/
+  /* addChar - a function to add nextChar to lexeme */
+  void addChar() {
+   if (lexLen <= 98) {
+     lexeme[lexLen++] = nextChar;
+     lexeme[lexLen] = 0;
+   }
+   else
+    printf("Error - lexeme is too long \n");
+  }
 
 /*****************************************************/
 /* lex - a simple lexical analyzer for arithmetic
  expressions */
-int lex(char* i) {
+int lex() {
  lexLen = 0;
- getNonBlank(i);
  switch (charClass) {
   /* Parse identifiers */
    case LETTER:
-     //addChar();
-     getChar(i);
+     addChar();
+     getChar();
      while (charClass == LETTER || charClass == DIGIT) {
-       //addChar();
-       getChar(i);
+       addChar();
+       getChar();
      }
      nextToken = IDENT;
      break;
   /* Parse integer literals */
    case DIGIT:
-     //addChar();
-     getChar(i);
+     addChar();
+     getChar();
      while (charClass == DIGIT) {
-       //addChar();
-       getChar(i);
+       addChar();
+       getChar();
      }
      nextToken = INT_LIT;
      break;
   /* Parentheses and operators */
    case UNKNOWN:
      //lookup(y);
-     getChar(i);
+     getChar();
      break;
 
   /* EOF */
@@ -149,7 +146,6 @@ int lex(char* i) {
      lexeme[3] = 0;
      break;
  } /* End of switch */
- printf("Next token is: %d, Next lexeme is %s\n",
- nextToken, lexeme);
+ printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
  return nextToken;
 } /* End of function lex */
