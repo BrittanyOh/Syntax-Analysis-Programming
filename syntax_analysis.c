@@ -17,12 +17,10 @@ FILE *file, *fopen();
 char * line = NULL;
 size_t len = 0;
 size_t read;
-char *read_line;
 
 
 /* Function declarations */
 void addChar();
-void getCharArray();
 void getChar();
 void getLine();
 void getNonBlank();
@@ -51,6 +49,7 @@ main() {
  if ((file = fopen("data.txt", "r")) == NULL)
   printf("ERROR - cannot open data.txt \n");
  else {
+
    getLine();
  }
 }
@@ -62,7 +61,8 @@ void getLine() {
       do {
         lex();
      } while (nextToken != EOF);
-    }
+     printf("%s \n************************\nValid Expression\n************************\n\n",line);
+   }
   fclose(file);
   if(line)
     free(line);
@@ -79,10 +79,11 @@ void getChar() {
     else if (isdigit(nextChar))
       charClass = DIGIT;
     else charClass = UNKNOWN;
+    i++;
   }else{
   charClass = EOF;
+  i = 0;
   }
-  i++;
 }
 
 
@@ -105,11 +106,57 @@ void getNonBlank() {
     printf("Error - lexeme is too long \n");
   }
 
+
+
+  /*****************************************************/
+  /* lookup - a function to lookup operators and parentheses
+   and return the token */
+  int lookup(char ch) {
+   switch (ch) {
+     case '(':
+       addChar();
+       nextToken = LEFT_PAREN;
+       break;
+
+     case ')':
+       addChar();
+       nextToken = RIGHT_PAREN;
+       break;
+
+     case '+':
+       addChar();
+       nextToken = ADD_OP;
+       break;
+
+     case '-':
+       addChar();
+       nextToken = SUB_OP;
+       break;
+
+     case '*':
+       addChar();
+       nextToken = MULT_OP;
+       break;
+
+     case '/':
+       addChar();
+       nextToken = DIV_OP;
+       break;
+
+     default:
+       addChar();
+       nextToken = EOF;
+       break;
+    }
+   return nextToken;
+  }
+
 /*****************************************************/
 /* lex - a simple lexical analyzer for arithmetic
  expressions */
 int lex() {
  lexLen = 0;
+ getNonBlank();
  switch (charClass) {
   /* Parse identifiers */
    case LETTER:
@@ -133,7 +180,7 @@ int lex() {
      break;
   /* Parentheses and operators */
    case UNKNOWN:
-     //lookup(y);
+     lookup(nextChar);
      getChar();
      break;
 
