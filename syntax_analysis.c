@@ -30,6 +30,7 @@ int lex();
 /* Character classes */
 #define LETTER 0
 #define DIGIT 1
+#define NEG_DIGIT 100
 #define UNKNOWN 99
 /* Token codes */
 #define INT_LIT 10
@@ -44,10 +45,10 @@ int lex();
 
 /******************************************************/
 /* main driver */
-main() {
+main(int argc, char *argv[]) {
 /* Open the input data file and process its contents */
- if ((file = fopen("data.txt", "r")) == NULL)
-  printf("ERROR - cannot open data.txt \n");
+ if ((file = fopen(argv[0], "r")) == NULL)
+  printf("ERROR - cannot open %s \n", argv[0]);
  else {
 
    getLine();
@@ -61,7 +62,6 @@ void getLine() {
       do {
         lex();
      } while (nextToken != EOF);
-     printf("%s \n************************\nValid Expression\n************************\n\n",line);
    }
   fclose(file);
   if(line)
@@ -76,7 +76,7 @@ void getChar() {
   if ((nextChar = line[i]) != '\0') {
     if (isalpha(nextChar))
       charClass = LETTER;
-    else if (isdigit(nextChar))
+    else if (isdigit(nextChar) > 0 )
       charClass = DIGIT;
     else charClass = UNKNOWN;
     i++;
@@ -194,5 +194,10 @@ int lex() {
      break;
  } /* End of switch */
  printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
+ if(nextToken == 100 ){
+   perror("Not a valid expression!");
+ }else if(nextToken == EOF){
+   printf("%s \n************************\nValid Expression\n************************\n\n",line);
+ }
  return nextToken;
 } /* End of function lex */
