@@ -17,7 +17,6 @@ FILE *file, *fopen();
 char * line = NULL;
 size_t len = 0;
 size_t read;
-string arg;
 
 
 /* Function declarations */
@@ -48,9 +47,8 @@ int lex();
 /* main driver */
 main(int argc, char *argv[]) {
 /* Open the input data file and process its contents */
-arg = argv[0];
- if ((file = fopen(arg, "r")) == NULL)
-  printf("ERROR - cannot open %s \n", argv[0]);
+ if ((file = fopen(argv[0], "r")) == NULL)
+  printf("ERROR - cannot openg %s \n", argv[0]);
  else {
 
    getLine();
@@ -184,6 +182,11 @@ int lex() {
    case UNKNOWN:
      lookup(nextChar);
      getChar();
+     if(nextChar == SUB_OP){
+       if(nextChar == DIGIT){
+         nextChar = NEG_DIGIT;
+       }
+     }
      break;
 
   /* EOF */
